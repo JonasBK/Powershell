@@ -1,7 +1,7 @@
 # Will output all the ACLs of a domain in four files
 
 Set-ExecutionPolicy Bypass -Force
-. .\Get-ADObjectACL.ps1 # 
+. .\Get-ADObjectACL.ps1 # https://github.com/JonasBK/Powershell/blob/master/Get-ADObjectACL.ps1
 
 # Domain partition
 Get-ADObject -Filter * | Select -ExpandProperty DistinguishedName | Get-ADObjectACL -ExcludeInherited -IncludeOwner -FullOutput > acls-domain.txt
