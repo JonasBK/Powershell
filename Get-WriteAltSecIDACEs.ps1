@@ -3,6 +3,9 @@ Function Get-WriteAltSecIDACEs {
 .SYNOPSIS
     Get ACEs in the ACL of an AD object that grants write access to AltSecurityIdentities.
 
+    Includes Write Alt-Security-Identities and Write Public-Information.
+    Not including: GenricWrite, WriteProperty all, GenericAll, Owner, WriteOwner, WriteDACL.
+
 .PARAMETER DistinguishedName
     Distinguished name of the AD object to get ACL for.
 
