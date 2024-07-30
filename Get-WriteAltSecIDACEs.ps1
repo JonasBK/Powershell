@@ -100,7 +100,7 @@ Function Get-WriteAltSecIDACEs {
             # Check if write Alt-Security-Identities
             if (($permission.ObjectTypeName -eq "Alt-Security-Identities" -or $Permission.ObjectTypeName -eq "Public-Information") `
                 -and $permission.AccessControlType -eq "Allow" `
-                -and $permission.ActiveDirectoryRights -eq "WriteProperty") {
+                -and $permission.ActiveDirectoryRights -band [System.DirectoryServices.ActiveDirectoryRights]::WriteProperty) {
                 $resACEs += $permission
             }
         }
