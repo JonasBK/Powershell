@@ -25,12 +25,39 @@ Function Get-CreateRenameGroupACEs {
     List of IdentityReferences to exclude from the results.
 
 .EXAMPLE
-    PS> Get-CreateRenameGroupACEs -DistinguishedName "dc=hackme,dc=local"
+    Get-CreateRenameGroupACEs -DistinguishedName "dc=hackme,dc=local"
     Get the ACEs for a single object based on DistinguishedName.
 
 .EXAMPLE
-    PS> Get-ADObject -Filter * -SearchBase "dc=hackme,dc=local" | Get-CreateRenameGroupACEs
-    Get ACEs of all AD objects under domain root by piping them into Get-CreateRenameGroupACEs.
+    Get-ADObject -Filter * -SearchBase "dc=hackme,dc=local" | Get-CreateRenameGroupACEs
+    Get ACEs of all AD objects under domain root by piping them into Get-CreateRenameGroupACEs
+
+.EXAMPLE
+    $Domain = Get-ADDomain
+    $ExcludePrincipals = @("$($Domain.NetBIOSName)\Domain Admins","$($Domain.NetBIOSName)\Enterprise Admins", "NT AUTHORITY\SYSTEM", "BUILTIN\Administrators", "BUILTIN\Account Operators")
+    
+    # Rename groups
+    Get-ADObject -LDAPFilter "(objectClass=group)" -SearchBase $Domain.DistinguishedName `
+     | Get-CreateRenameGroupACEs -UniqueIdentityReferences -ExcludeInherited -ExcludeCreate -ExcludeIdentityReferences $ExcludePrincipals | ft
+    
+    # Create groups
+    Get-ADObject -LDAPFilter "(|(objectClass=container)(objectClass=organizationalUnit)(objectClass=domainDNS))" -SearchBase $Domain.DistinguishedName `
+     | ? {-not ($_.DistinguishedName -like "*$($Domain.SystemsContainer)") } `
+     | Get-CreateRenameGroupACEs -UniqueIdentityReferences -ExcludeInherited -ExcludeRename -ExcludeIdentityReferences $ExcludePrincipals | ft
+
+    Output:
+    IdentityReference ObjectDNs                             
+    ----------------- ---------                             
+    EXTERNAL\tester   CN=test3,CN=Users,DC=external,DC=local
+    
+    IdentityReference                   ObjectDNs                                                 
+    -----------------                   ---------                                                 
+    EXTERNAL\tester                     CN=Users,DC=external,DC=local                             
+    EXTERNAL\Exchange Trusted Subsystem OU=Microsoft Exchange Security Groups,DC=external,DC=local
+    EXTERNAL\Organization Management    OU=Microsoft Exchange Security Groups,DC=external,DC=local
+
+    Get all principals with rename/create group permissions
+
 
 .LINK
     https://github.com/JonasBK/Powershell/blob/master/Get-CreateRenameGroupACEs.ps1
