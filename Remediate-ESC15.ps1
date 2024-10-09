@@ -2,7 +2,7 @@
 Script to remediate ESC15
 ESC15 was found by by @Bandrel and documented here: https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc
 
-When enrolling a certificate from ADCS, the CA populates the certificate’s Application Policies extension with the EKUs specified in the certificate template's msPKI-Certificate-Application-Policy attribute. However, if this attribute is not set in the template i.e. set to Null, the requester can specify the EKUs in the Application Policies extension themselves. The ESC15 attack exploits this behavior, making all schema version 1 templates vulnerable by default.
+When enrolling a certificate from ADCS, the CA populates the certificate’s Application Policies extension with the EKUs specified in the certificate template's msPKI-Certificate-Application-Policy attribute. However, if this attribute is not set in the template i.e. set to Null, the requester can specify the EKUs in the Application Policies extension themselves, assuming the template has the ENROLLEE_SUPPLIES_SUBJECT flag. The ESC15 attack exploits this behavior, making all schema version 1 templates vulnerable by default.
 
 To mitigate this vulnerability, you can set the msPKI-Certificate-Application-Policy attribute to include the same EKUs as the pKIExtendedKeyUsage attribute for any templates where msPKI-Certificate-Application-Policy is null. This change should not cause any issues, as the only difference is that the certificate will now also include its EKUs in the Application Policies extension, preventing attackers from selecting the EKUs themselves.
 
