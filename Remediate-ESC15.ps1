@@ -1,3 +1,15 @@
+<#
+Script to remediate ESC15
+ESC15 was found by by @Bandrel and documented here: https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc
+
+When enrolling a certificate from ADCS, the CA populates the certificate’s Application Policies extension with the EKUs specified in the certificate template's msPKI-Certificate-Application-Policy attribute. However, if this attribute is not set in the template i.e. set to Null, the requester can specify the EKUs in the Application Policies extension themselves. The ESC15 attack exploits this behavior, making all schema version 1 templates vulnerable by default.
+
+To mitigate this vulnerability, you can set the msPKI-Certificate-Application-Policy attribute to include the same EKUs as the pKIExtendedKeyUsage attribute for any templates where msPKI-Certificate-Application-Policy is null. This change should not cause any issues, as the only difference is that the certificate will now also include its EKUs in the Application Policies extension, preventing attackers from selecting the EKUs themselves.
+
+Note that certain templates have both msPKI-Certificate-Application-Policy and pKIExtendedKeyUsage set to Null on purpose e.g. CA, SubCA, CrossCA. The script will not change those. Enrollment rights should be restricted to Tier 0 principals on those.
+#>
+
+# Options:
 $listNullTemplates = $true  # List templates with msPKI-Certificate-Application-Policy set to Null (not set)
 $fixNullTemplates  = $false # For templates with msPKI-Certificate-Application-Policy = Null, set msPKI-Certificate-Application-Policy to be the same as pKIExtendedKeyUsage
 $reverseV1NullFix  = $false # For version 1 templates, set msPKI-Certificate-Application-Policy to Null
